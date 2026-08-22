@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Match Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Красочный фон */
+            background: url('https://img.magnific.com/premium-photo/abstract-oil-painting-flowers-wallpaper-art-oil-painting-background_1349200-9382.jpg?semt=ais_hybrid&w=740&q=80') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 700px;
+            width: 90%;
+            border: 5px solid white;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 0;
+            font-size: 2.2em;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .score-board {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #555;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .target-word {
+            font-size: 4.5em;
+            font-weight: 900;
+            color: #2d3436;
+            margin: 20px 0 40px 0;
+            text-transform: lowercase; /* Слова с маленькой буквы */
+            letter-spacing: 2px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .colors-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .color-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.15) rotate(5deg);
+            z-index: 10;
+        }
+
+        .color-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Яркие цвета */
+        .btn-red {
+            background-color: #FF0000; 
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
+        }
+
+        .btn-yellow {
+            background-color: #FFFF00; 
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.7);
+            border-color: #ddd;
+        }
+
+        .btn-green { background-color: #00CC00; }
+        .btn-blue { background-color: #0066FF; }
+        .btn-black { background-color: #000000; }
+        .btn-white { 
+            background-color: #FFFFFF; 
+            border: 3px solid #ccc;
+        }
+        .btn-pink { background-color: #FF69B4; }
+
+        .feedback {
+            height: 30px;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .correct-msg { color: #2ecc71; }
+        .wrong-msg { color: #ff7675; }
+
+        /* Экран победы */
+        .win-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .win-content {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            color: #333;
+            animation: bounceIn 1s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <h1>🎨 Color Match!</h1>
+        
+        <div class="score-board">
+            Score: <span id="score">0</span> / 300
+        </div>
+        
+        <div id="target-word" class="target-word">start</div>
+        
+        <div class="colors-container" id="buttons-area"></div>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="win-screen" id="win-screen">
+        <div class="win-content">
+            <h2 style="font-size: 3em; margin: 0;">🏆 YOU WIN! 🏆</h2>
+            <p style="font-size: 1.5em;">You reached 300 points!</p>
+            <button class="restart-btn" onclick="location.reload()">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const colors = [
+            { name: 'white', class: 'btn-white' },
+            { name: 'green', class: 'btn-green' },
+            { name: 'black', class: 'btn-black' },
+            { name: 'red', class: 'btn-red' },
+            { name: 'blue', class: 'btn-blue' },
+            { name: 'pink', class: 'btn-pink' },
+            { name: 'yellow', class: 'btn-yellow' }
+        ];
+
+        let score = 0;
+        const TARGET_SCORE = 300;
+        let currentTarget = null;
+        let isProcessing = false;
+
+        // --- НОВЫЕ ПРИЯТНЫЕ ЗВУКИ ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                // Мелодичный "динь-дон" (два тона)
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc1.type = 'sine';
+                osc2.type = 'sine';
+                
+                // Настройка частот для приятного аккорда
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                osc2.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc1.start(now);
+                osc1.stop(now + 0.6);
+                osc2.start(now + 0.1);
+                osc2.stop(now + 0.6);
+                
+            } else {
+                // Мягкий низкий звук для ошибки (без резкости)
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'triangle'; // Треугольная волна звучит мягче пилы
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        function initGame() {
+            const container = document.getElementById('buttons-area');
+            container.innerHTML = '';
+            
+            colors.forEach(color => {
+                const btn = document.createElement('div');
+                btn.className = `color-btn ${color.class}`;
+                btn.onclick = () => checkAnswer(color.name, btn);
+                container.appendChild(btn);
+            });
+
+            nextRound();
+        }
+
+        function nextRound() {
+            isProcessing = false;
+            document.getElementById('feedback').textContent = '';
+            
+            const randomIndex = Math.floor(Math.random() * colors.length);
+            currentTarget = colors[randomIndex];
+            
+            const wordEl = document.getElementById('target-word');
+            wordEl.style.animation = 'none';
+            wordEl.offsetHeight; 
+            wordEl.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            
+            wordEl.textContent = currentTarget.name;
+        }
+
+        function checkAnswer(selectedName, btnElement) {
+            if (isProcessing) return;
+
+            const feedbackEl = document.getElementById('feedback');
+
+            if (selectedName === currentTarget.name) {
+                isProcessing = true;
+                score += 10;
+                document.getElementById('score').textContent = score;
+                
+                playSound('correct');
+                
+                feedbackEl.textContent = 'Correct! ✨';
+                feedbackEl.className = 'feedback correct-msg';
+                
+                btnElement.style.transform = 'scale(1.3)';
+                
+                if (score >= TARGET_SCORE) {
+                    setTimeout(showWinScreen, 500);
+                } else {
+                    setTimeout(() => {
+                        btnElement.style.transform = 'scale(1)';
+                        nextRound();
+                    }, 800);
+                }
+                
+            } else {
+                playSound('wrong');
+                feedbackEl.textContent = 'Try Again! ❌';
+                feedbackEl.className = 'feedback wrong-msg';
+                
+                btnElement.style.opacity = '0.3';
+                setTimeout(() => {
+                    btnElement.style.opacity = '1';
+                }, 500);
+            }
+        }
+
+        function showWinScreen() {
+            document.getElementById('win-screen').style.display = 'flex';
+            createConfetti();
+        }
+
+        function createConfetti() {
+            for(let i=0; i<100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = ['#f00', '#0f0', '#00f', '#ff0', '#0ff'][Math.floor(Math.random()*5)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '200';
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(confetti);
+            }
+        }
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fall {
+                to { transform: translateY(100vh) rotate(720deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        initGame();
+    </script>
+</body>
+</html>
